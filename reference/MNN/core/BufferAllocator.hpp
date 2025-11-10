@@ -178,7 +178,7 @@ private:
   class Node : public RefCount {
   public:
     ~Node();
-    std::pair<void *, size_t> pointer;
+    std::pair<void *, size_t> pointer;  // < base, offset >
     SharedPtr<Node> parent = nullptr;
     size_t size;
     size_t useCount = 0;

@@ -184,6 +184,9 @@ BufferAllocator::Allocator::createRecurse(BufferAllocator *parent) {
 }
 
 EagerBufferAllocator::Node::~Node() {
+  MNN_PRINT("Node::~Node(), %p, %zu, %p, %zu\r\n", this->parent.get(),
+            this->size, this->pointer.first, this->pointer.second);
+
   if (nullptr == parent.get()) {
     outside->onRelease(pointer);
   }
@@ -200,11 +203,13 @@ MemChunk EagerBufferAllocator::alloc(size_t size, bool separate, size_t align) {
   // reuse if possible
   if (!separate) {
     if (nullptr != mCurrentFreeList) {
+      MNN_PRINT("alloc from mCurrentFreeList: %p\n", mCurrentFreeList);
       pointer = getFromFreeList(mCurrentFreeList, size, false, align);
     }
     if (nullptr != pointer.first) {
       return MemChunk(pointer);
     }
+    MNN_PRINT("alloc from mFreeList: %p\n", &mFreeList);
     pointer = getFromFreeList(&mFreeList, size, true, align);
     if (nullptr != pointer.first) {
       return MemChunk(pointer);
@@ -353,6 +358,7 @@ void EagerBufferAllocator::barrierEnd() {
 void EagerBufferAllocator::beginGroup() {
   std::shared_ptr<FREELIST> newFreeList(new FREELIST);
   mCurrentFreeList = newFreeList.get();
+  MNN_PRINT("mCurrentFreeList: %p\n", mCurrentFreeList);
   mGroups.emplace_back(newFreeList);
 }
 
